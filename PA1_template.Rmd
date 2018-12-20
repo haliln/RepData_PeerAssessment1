@@ -14,7 +14,7 @@ Date : 20-12-2018
 library(ggplot2)
 library(dplyr)
 activity <- read.csv("./activity.csv", header = TRUE)
---- convert date to convenient format
+# convert date to convenient format
 activity$date <- as.POSIXct(activity$date, "%Y-%m-%d")
 weekday <- weekdays(activity$date)
 activity <- cbind(activity,weekday)
@@ -51,21 +51,23 @@ plot(agginterval$interval, agginterval$steps,
      xlab = "Interval", 
      ylab = "Total Steps",
      main = "Total Steps vs. 5-Minute Interval")
-     
+
 # Step5 - Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 filter(agginterval, steps==max(steps))
 
 ## Imputing missing values 
 ## Step6 - Code to describe and show a strategy for imputing missing data
 # 1.Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
-table(is.na(a))
+table(is.na(activity))
 
 # 2.Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For     example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
 mean_interval<- aggregate(steps ~ interval, activity, FUN=mean)
-newMerged <- merge(x=a, y=mean_interval, by="interval")
+newMerged <- merge(x=activity, y=mean_interval, by="interval")
+
 #Replace the NA values with the mean for that 5-minute interval
 newMerged$steps <- ifelse(is.na(newMerged$steps.x), newMerged$steps.y, newMerged$steps.x)
+
 #Here is the merged dataset which will be subsetted in the next step by removing not required columns
 head(newMerged)
 
@@ -77,7 +79,7 @@ head(newMerged)
 # Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
 #Aggregating(summation) of steps over date
-aggsteps_new<- aggregate(steps ~ date, anew, FUN=sum)
+aggsteps_new<- aggregate(steps ~ date, newMerged, FUN=sum)
 
 #Plotting : Setting up the pannel for one row and two columns
 par(mfrow=c(1,2))
@@ -101,31 +103,35 @@ hist(aggsteps$steps,
      cex.main = 0.7)
 
 par(mfrow=c(1,1)) #Resetting the panel
-amean_new <- mean(aggsteps_new$steps)
-amedian_new <- median(aggsteps_new$steps)
+Mean_new <- mean(aggsteps_new$steps)
+Median_new <- median(aggsteps_new$steps)
+
 #Comparing Means
-paste("New Mean      :", round(amean_new,2), "," ,  
-      " Original Mean :", round(amean,2),"," , 
-      " Difference :",round(amean_new,2) -  round(amean,2))
-      
+paste("New Mean      :", round(Mean_new,2), "," ,  
+      " Original Mean :", round(Mean,2),"," , 
+      " Difference :",round(Mean_new,2) -  round(Mean,2))
+
 #Comparing Medians
-paste("New Median    :", amedian_new, ",", 
-      " Original Median :", amedian,"," , 
-      " Difference :",round(amedian_new-amedian,2))      
-     
+paste("New Median    :", Median_new, ",", 
+      " Original Median :", Median,"," , 
+      " Difference :",round(Median_new-Median,2))      
+
 ## Step 8 -Are there differences in activity patterns between weekdays and weekends?
+#install.packages("chron")
+library(chron)
 
 # Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
-table(is.weekend(anew$date))
-anew$dayofweek <- ifelse(is.weekend(anew$date), "weekend", "weekday")
-table(anew$dayofweek)
-head(anew)
+table(is.weekend(newMerged$date))
+newMerged$dayofweek <- ifelse(is.weekend(newMerged$date), "weekend", "weekday")
+table(newMerged$dayofweek)
+head(newMerged)
 
 # Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was created using simulated data:
-meaninterval_new<- aggregate(steps ~ interval + dayofweek, anew, FUN=mean)
+meaninterval_new<- aggregate(steps ~ interval + dayofweek, newMerged, FUN=mean)
 head(meaninterval_new)
 ggplot(meaninterval_new, aes(x=interval, y=steps)) + 
   geom_line(color="blue", size=1) + 
   facet_wrap(~dayofweek, nrow=2) +
   labs(x="\nInterval", y="\nNumber of steps")
+
   
