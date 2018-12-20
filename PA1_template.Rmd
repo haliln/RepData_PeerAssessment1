@@ -8,9 +8,9 @@ Date : 20-12-2018
     
 ---
 
-
+## Step 1
 ## Loading and preprocessing the data. 
-## Assuming the data is in the current project
+#Assuming the data is in the current project
 
 library(ggplot2)
 library(dplyr)
@@ -22,28 +22,31 @@ activity <- cbind(activity,weekday)
 summary(activity)
 head(activity)
 
-# summing steps over date
+#summing steps over date
 summed_steps<- aggregate(steps ~ date, activity, FUN=sum)
 
 head(summed_steps)
-# I use the base plotting to show a histogram
+#I use the base plotting to show a histogram
 hist(summed_steps$steps, 
      col="red", 
      xlab = "Frequency", 
      ylab = "Steps",
      main = "Total Number Of Steps Taken Each day")
-     
+
+##Step2 
 ## What is mean total number of steps taken per day?
-# Calculation
+
+#Calculation
 Mean <- mean(summed_steps$steps)
 Median <- median(summed_steps$steps)
-# Print results of mean and median
+#Print results of mean and median
 Mean
 Median
 
+##Step3
 ## What is the average daily activity pattern?
 
-#  of steps over time interval (of 5 min)
+#aggregation of steps over time interval (of 5 min)
 agginterval <- aggregate(steps ~ interval, activity, FUN=sum)
 
 #Plotting line graph using plot() from Base Plotting for Total Steps vs 5-Minute Interval
@@ -52,6 +55,7 @@ plot(agginterval$interval, agginterval$steps,
      xlab = "Interval", 
      ylab = "Total Steps",
      main = "Total Steps vs. 5-Minute Interval")
+
 
 ## Imputing missing values
 
