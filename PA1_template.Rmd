@@ -8,8 +8,7 @@ Date : 20-12-2018
     
 ---
 
-## Step 1
-## Loading and preprocessing the data. 
+## Step1 - Code for reading in the dataset and/or processing the data
 #Assuming the data is in the current project
 
 library(ggplot2)
@@ -22,20 +21,18 @@ activity <- cbind(activity,weekday)
 summary(activity)
 head(activity)
 
-#summing steps over date
+## Step2 - Histogram of the total number of steps taken each day
 summed_steps<- aggregate(steps ~ date, activity, FUN=sum)
 
 head(summed_steps)
-#I use the base plotting to show a histogram
+#Use the base plotting to show a histogram
 hist(summed_steps$steps, 
      col="red", 
      xlab = "Frequency", 
      ylab = "Steps",
      main = "Total Number Of Steps Taken Each day")
 
-##Step2 
-## What is mean total number of steps taken per day?
-
+## Step3 - Mean and median number of steps taken each day
 #Calculation
 Mean <- mean(summed_steps$steps)
 Median <- median(summed_steps$steps)
@@ -43,18 +40,20 @@ Median <- median(summed_steps$steps)
 Mean
 Median
 
-##Step3
-## What is the average daily activity pattern?
+## Step4 - Time series plot of the average number of steps taken: What is the average daily activity pattern?
 
+# 1.Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across #all days (y-axis)
 #aggregation of steps over time interval (of 5 min)
 agginterval <- aggregate(steps ~ interval, activity, FUN=sum)
-
 #Plotting line graph using plot() from Base Plotting for Total Steps vs 5-Minute Interval
 plot(agginterval$interval, agginterval$steps, 
      type = "l", lwd = 2,
      xlab = "Interval", 
      ylab = "Total Steps",
      main = "Total Steps vs. 5-Minute Interval")
+     
+# 2.Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+filter(agginterval, steps==max(steps))
 
 
 ## Imputing missing values
