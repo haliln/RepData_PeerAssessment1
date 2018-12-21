@@ -8,24 +8,21 @@ Date : 20-12-2018
     
 ---
 
-
 ## Step1 - Code for reading in the dataset and/or processing the data
 ## Assuming the data is in the current project
 
 ```{r echo=TRUE}
-
 library(knitr)
 library(ggplot2)
 library(dplyr)
 
+Sys.setlocale(category = "LC_ALL", locale = "US")
+
 activity <- read.csv("./activity.csv", header = TRUE)
 # convert date to convenient format
 activity$date <- as.POSIXct(activity$date, format = "%Y-%m-%d", tz="EST")
-
 weekday <- weekdays(activity$date)
-
 activity <- cbind(activity,weekday)
-
 summary(activity)
 head(activity)
 ```
@@ -33,14 +30,12 @@ head(activity)
 ```{r echo=TRUE}
 summed_steps<- aggregate(steps ~ date, activity, FUN=sum)
 head(summed_steps)
-
 #Use the base plotting to show a histogram
 hist(summed_steps$steps, 
-     col="red", 
+     col="magenta", 
      xlab = "Frequency", 
      ylab = "Steps",
      main = "Total Number Of Steps Taken Each day")
-
 ```
 
 ## Step3 - Mean and median number of steps taken each day
@@ -74,18 +69,13 @@ filter(agginterval, steps==max(steps))
 ```{r echo=TRUE}
 # 1.Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)
 table(is.na(activity))
-
 # 2.Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For     example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
-
 mean_interval<- aggregate(steps ~ interval, activity, FUN=mean)
 newMerged <- merge(x=activity, y=mean_interval, by="interval")
-
 #Replace the NA values with the mean for that 5-minute interval
 newMerged$steps <- ifelse(is.na(newMerged$steps.x), newMerged$steps.y, newMerged$steps.x)
-
 #Here is the merged dataset which will be subsetted in the next step by removing not required columns
 head(newMerged)
-
 # 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 newMerged <- select(newMerged, steps, date, interval)
 head(newMerged)
@@ -94,13 +84,10 @@ head(newMerged)
 ## Step7 - Histogram of the total number of steps taken each day after missing values are imputed
 ```{r echo=TRUE}
 # Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
-
 #Aggregating(summation) of steps over date
 aggsteps_new<- aggregate(steps ~ date, newMerged, FUN=sum)
-
 #Plotting : Setting up the pannel for one row and two columns
 par(mfrow=c(1,2))
-
 #Histogram after imputing NA values with mean of 5-min interval
 hist(aggsteps_new$steps, 
      col="green",
@@ -109,25 +96,21 @@ hist(aggsteps_new$steps,
      ylim = c(0,35),
      main = "Total Number Of Steps Taken Each day \n(After imputing NA values with \n mean of 5-min interval)",
      cex.main = 0.7)
-
 #Histogram with the orginal dataset
-hist(aggsteps$steps, 
+hist(summed_steps$steps, 
      col="red", 
      xlab = "Steps", 
      ylab = "Frequency",
      ylim = c(0,35),
      main = "Total Number Of Steps Taken Each day \n(Orginal Dataset)",
      cex.main = 0.7)
-
 par(mfrow=c(1,1)) #Resetting the panel
 Mean_new <- mean(aggsteps_new$steps)
 Median_new <- median(aggsteps_new$steps)
-
 #Comparing Means
 paste("New Mean      :", round(Mean_new,2), "," ,  
       " Original Mean :", round(Mean,2),"," , 
       " Difference :",round(Mean_new,2) -  round(Mean,2))
-
 #Comparing Medians
 paste("New Median    :", Median_new, ",", 
       " Original Median :", Median,"," , 
@@ -138,13 +121,11 @@ paste("New Median    :", Median_new, ",",
 ```{r echo=TRUE}
 #install.packages("chron")
 library(chron)
-
 # Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
 table(is.weekend(newMerged$date))
 newMerged$dayofweek <- ifelse(is.weekend(newMerged$date), "weekend", "weekday")
 table(newMerged$dayofweek)
 head(newMerged)
-
 # Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). The plot should look something like the following, which was created using simulated data:
 meaninterval_new<- aggregate(steps ~ interval + dayofweek, newMerged, FUN=mean)
 head(meaninterval_new)
@@ -153,3 +134,5 @@ ggplot(meaninterval_new, aes(x=interval, y=steps)) +
   facet_wrap(~dayofweek, nrow=2) +
   labs(x="\nInterval", y="\nNumber of steps")
 ```
+
+
